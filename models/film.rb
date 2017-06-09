@@ -2,6 +2,7 @@ require_relative('../db/sql_runner')
 
 class Film
   attr_reader :id, :price
+  attr_accessor :title
 
   def initialize(options)
     @title = options['title']

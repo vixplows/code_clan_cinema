@@ -4,6 +4,8 @@ require_relative('../models/ticket')
 
 require('pry-byebug')
 
+Customer.delete_all_console
+
 customer1 = Customer.new({'name' => 'Finn Porter', 'funds' => 20})
 customer1.save()
 
