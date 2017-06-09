@@ -63,8 +63,8 @@ class Customer
 
   def Customer.all_current
     sql = "SELECT * FROM customers WHERE deleted = FALSE"
-    customer_hash = SqlRunner.run(sql)
-    return customer_hash.map {|customer| Customer.new(customer)}
+    customers_hash = SqlRunner.run(sql)
+    return customers_hash.map {|customer| Customer.new(customer)}
   end
 
   def Customer.delete_all_console()
