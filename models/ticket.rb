@@ -51,6 +51,18 @@ class Ticket
     SqlRunner.run(sql)
   end
 
+  def film()
+    sql = "SELECT * FROM films WHERE id = #{@film_id}"
+    film = SqlRunner.run(sql).first
+    return Film.new(film)
+  end
+
+  def customer()
+    sql = "SELECT * FROM customers WHERE id = #{@customer_id}"
+    customer = SqlRunner.run(sql).first
+    return Customer.new(customer)
+  end
+
   def Ticket.all()
     sql = "SELECT * FROM tickets"
     tickets_hash = SqlRunner.run(sql)

@@ -1,8 +1,8 @@
 require_relative('../db/sql_runner')
 
 class Customer
-  attr_reader :id, :deleted
-  attr_accessor :name, :funds
+  attr_reader :id
+  attr_accessor :name, :funds, :deleted
 
   def initialize (options)
     @name = options['name']
@@ -47,6 +47,15 @@ class Customer
   def delete()
     sql = "UPDATE customers SET deleted = TRUE WHERE id = #{@id}"
     SqlRunner.run(sql)
+  end
+
+# select all films a customer has booked to see:
+  def films
+    sql = "SELECT films.* from films
+          INNER JOIN tickets ON tickets.film_id = films.id
+          WHERE customer_id = #{@id}"
+    customer_films = SqlRunner.run(sql)
+    return customer_films.map {|film| Film.new(film)}
   end
 
   def Customer.all()
