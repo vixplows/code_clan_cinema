@@ -22,46 +22,40 @@ class Customer
       '#{@name}',
       #{@funds}
     )
-      RETURNING id;"
-    @id = SqlRunner.run(sql)[0]["id"].to_i
+      RETURNING id, deleted"
+    result = SqlRunner.run(sql)
+    @id = result[0]["id"].to_i
+    @deleted = result[0]["deleted"]
   end
 
-  def update_name()
+  def update()
     sql = "UPDATE customers SET
-    (
-      name
-    ) =
-    (
-      '#{@name}'
-    )
-    WHERE id = #{id};"
-    SqlRunner.run(sql)
-  end
-
-  def update_funds()
-    sql = "UPDATE customers SET
-    (
-      funds
-    ) = 
-    (
-      #{@funds}
-    )
-    WHERE id = #{id}"
-    SqlRunner.run(sql)
+      (
+        name,
+        funds,
+        deleted
+      ) =
+      (
+        '#{@name}',
+        #{@funds},
+        '#{@deleted}'
+      )
+        WHERE id = #{@id}"
+      SqlRunner.run(sql)
   end
 
   def delete()
-    sql = "UPDATE customers SET deleted = TRUE WHERE id = #{id}"
+    sql = "UPDATE customers SET deleted = TRUE WHERE id = #{@id}"
     SqlRunner.run(sql)
   end
 
   def Customer.all()
     sql = "SELECT * FROM customers"
-    customer_hash = SqlRunner.run(sql)
-    return customer_hash.map {|customer| Customer.new(customer)}
+    customers_hash = SqlRunner.run(sql)
+    return customers_hash.map {|customer| Customer.new(customer)}
   end
 
-  def Customer.all_current
+  def Customer.all_undeleted
     sql = "SELECT * FROM customers WHERE deleted = FALSE"
     customers_hash = SqlRunner.run(sql)
     return customers_hash.map {|customer| Customer.new(customer)}

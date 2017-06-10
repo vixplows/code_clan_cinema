@@ -12,7 +12,7 @@ class Film
   end
 
   def save()
-    sql = " INSERT INTO films
+    sql = "INSERT INTO films
     (
       title,
       price
@@ -22,36 +22,30 @@ class Film
       '#{@title}',
       #{@price}
     )
-      RETURNING id;"
-    @id = SqlRunner.run(sql)[0]["id"].to_i
+      RETURNING id, deleted"
+    result = SqlRunner.run(sql)
+    @id = result[0]["id"].to_i
+    @deleted = result[0]["deleted"]
   end
 
-  def update_title()
+  def update()
     sql = "UPDATE films SET
     (
-      title
+      title,
+      price,
+      deleted
     ) =
     (
-      '#{@title}'
+      '#{@title}',
+      #{@price},
+      '#{@deleted}'
     )
-    WHERE id = #{id};"
-    SqlRunner.run(sql)
-  end
-
-  def update_price()
-    sql = "UPDATE films SET
-    (
-      price
-    ) = 
-    (
-      #{@price}
-    )
-    WHERE id = #{id}"
+      WHERE id = #{@id};"
     SqlRunner.run(sql)
   end
 
   def delete()
-    sql = "UPDATE films SET deleted = TRUE WHERE id = #{id}"
+    sql = "UPDATE films SET deleted = TRUE WHERE id = #{@id}"
     SqlRunner.run(sql)
   end
 
@@ -61,7 +55,7 @@ class Film
     return films_hash.map {|film| Film.new(film)}
   end
 
-  def Film.all_current
+  def Film.all_undeleted
     sql = "SELECT * FROM films WHERE deleted = FALSE"
     films_hash = SqlRunner.run(sql)
     return films_hash.map {|film| Film.new(film)}
