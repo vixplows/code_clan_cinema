@@ -45,10 +45,12 @@ class Ticket
     SqlRunner.run(sql)
   end
 
-
   def delete()
-    sql = "DELETE FROM tickets WHERE id = #{@id}"
-    SqlRunner.run(sql)
+    sql = "UPDATE tickets SET deleted = TRUE
+        WHERE id = #{@id}
+        RETURNING deleted"
+    result = SqlRunner.run(sql)
+    @deleted = result[0]["deleted"]
   end
 
   def film()
@@ -76,6 +78,7 @@ class Ticket
     SqlRunner.run(sql)
   end
 
+#same issue as with self.delete_all method in film and customer.
   def Ticket.delete_all()
     sql = "UPDATE tickets SET deleted = TRUE"
     SqlRunner.run(sql)

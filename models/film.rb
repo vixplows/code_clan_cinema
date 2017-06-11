@@ -45,8 +45,11 @@ class Film
   end
 
   def delete()
-    sql = "UPDATE films SET deleted = TRUE WHERE id = #{@id}"
-    SqlRunner.run(sql)
+    sql = "UPDATE films SET deleted = TRUE
+        WHERE id = #{@id}
+        RETURNING deleted"
+        result = SqlRunner.run(sql)
+        @deleted = result[0]["deleted"]
   end
 
 # see which customers are coming to see one film
@@ -55,6 +58,14 @@ class Film
           INNER JOIN tickets ON tickets.customer_id = customers.id
           WHERE film_id =#{@id}"
     return Customer.map_items(sql)
+  end
+
+  def customer_count
+    sql = "SELECT customers.* FROM customers
+          INNER JOIN tickets ON tickets.customer_id = customers.id
+          WHERE film_id =#{@id}"
+    customers_array = Customer.map_items(sql)
+    return customers_array.length
   end
 
   def Film.all()
@@ -72,9 +83,10 @@ class Film
     SqlRunner.run(sql)
   end
 
+# ??? on calling Film.all and Film.all_undeleted shows deleted = t, but calling customer.1 deleted = f ???
   def Film.delete_all()
     sql = "UPDATE films SET deleted = TRUE"
-    SqlRunner.run(sql)
+    return SqlRunner.run(sql)
   end
 
   def Film.map_items(sql)

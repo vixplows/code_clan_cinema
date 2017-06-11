@@ -44,18 +44,37 @@ class Customer
       SqlRunner.run(sql)
   end
 
-# ??? as per delete.all, on calling Customer.all and Customer.all_undeleted shows deleted = t, but calling customer.1 deleted = f ???
   def delete()
-    sql = "UPDATE customers SET deleted = TRUE WHERE id = #{@id}"
-    SqlRunner.run(sql)
+    sql = "UPDATE customers SET deleted = TRUE 
+      WHERE id = #{@id}
+      RETURNING deleted"
+    result = SqlRunner.run(sql)
+    @deleted = result[0]["deleted"]
   end
 
 # select all films a customer has booked to see:
   def films()
-    sql = "SELECT films.* from films
+    sql = "SELECT films.* FROM films
           INNER JOIN tickets ON tickets.film_id = films.id
           WHERE customer_id = #{@id}"
     return Film.map_items(sql)
+  end
+
+# need to be called on tickets, otherwise how know which ticket to deduct from customer if booked more than once??
+  def deduct_funds()
+    sql = "SELECT films.price, customers.funds FROM films
+        INNER JOIN tickets ON tickets.film_id = films.id
+        INNER JOIN customers ON customers.id = tickets.customer_id
+        WHERE tickets.customer_id = #{@id}"
+    results_hash = SqlRunner.run(sql)[0]
+    sql = "UPDATE customers SET funds = #{results_hash['funds'].to_i - results_hash['price'].to_i} WHERE id = #{@id}"
+    SqlRunner.run(sql)
+  end
+
+  def tickets()
+    sql = "SELECT tickets.* FROM tickets WHERE customer_id = #{@id}"
+    tickets_array = Ticket.map_items(sql)
+    tickets_array.length
   end
 
   def Customer.all()
