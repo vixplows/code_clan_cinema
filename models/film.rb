@@ -54,20 +54,17 @@ class Film
     sql = "SELECT customers.* FROM customers
           INNER JOIN tickets ON tickets.customer_id = customers.id
           WHERE film_id =#{@id}"
-    film_customers = SqlRunner.run(sql)
-    return film_customers.map {|customer| Customer.new(customer)}
+    return Customer.map_items(sql)
   end
 
   def Film.all()
     sql = "SELECT * FROM films"
-    films_hash = SqlRunner.run(sql)
-    return films_hash.map {|film| Film.new(film)}
+    return Film.map_items(sql)
   end
 
   def Film.all_undeleted
     sql = "SELECT * FROM films WHERE deleted = FALSE"
-    films_hash = SqlRunner.run(sql)
-    return films_hash.map {|film| Film.new(film)}
+    return Film.map_items(sql)
   end
 
   def Film.delete_all_console()
@@ -78,6 +75,11 @@ class Film
   def Film.delete_all()
     sql = "UPDATE films SET deleted = TRUE"
     SqlRunner.run(sql)
+  end
+
+  def Film.map_items(sql)
+    films_hash = SqlRunner.run(sql)
+    return films_hash.map { |film| Film.new(film)}
   end
 
 end

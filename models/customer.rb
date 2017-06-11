@@ -44,30 +44,28 @@ class Customer
       SqlRunner.run(sql)
   end
 
+# ??? as per delete.all, on calling Customer.all and Customer.all_undeleted shows deleted = t, but calling customer.1 deleted = f ???
   def delete()
     sql = "UPDATE customers SET deleted = TRUE WHERE id = #{@id}"
     SqlRunner.run(sql)
   end
 
 # select all films a customer has booked to see:
-  def films
+  def films()
     sql = "SELECT films.* from films
           INNER JOIN tickets ON tickets.film_id = films.id
           WHERE customer_id = #{@id}"
-    customer_films = SqlRunner.run(sql)
-    return customer_films.map {|film| Film.new(film)}
+    return Film.map_items(sql)
   end
 
   def Customer.all()
     sql = "SELECT * FROM customers"
-    customers_hash = SqlRunner.run(sql)
-    return customers_hash.map {|customer| Customer.new(customer)}
+    return Customer.map_items(sql)
   end
 
   def Customer.all_undeleted
     sql = "SELECT * FROM customers WHERE deleted = FALSE"
-    customers_hash = SqlRunner.run(sql)
-    return customers_hash.map {|customer| Customer.new(customer)}
+    return Customer.map_items(sql)
   end
 
   def Customer.delete_all_console()
@@ -75,9 +73,15 @@ class Customer
     SqlRunner.run(sql)
   end
 
-  def Customer.delete_all()
+# ??? on calling Customer.all and Customer.all_undeleted shows deleted = t, but calling customer.1 deleted = f ???
+  def Customer.delete_all
     sql = "UPDATE customers SET deleted = TRUE"
     SqlRunner.run(sql)
+  end
+
+  def Customer.map_items(sql)
+    customers_hash = SqlRunner.run(sql)
+    return customers_hash.map { |customer| Customer.new(customer)}
   end
 
 end

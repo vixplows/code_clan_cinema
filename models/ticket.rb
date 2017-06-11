@@ -53,26 +53,22 @@ class Ticket
 
   def film()
     sql = "SELECT * FROM films WHERE id = #{@film_id}"
-    film = SqlRunner.run(sql).first
-    return Film.new(film)
+    return Film.map_items(sql)
   end
 
   def customer()
     sql = "SELECT * FROM customers WHERE id = #{@customer_id}"
-    customer = SqlRunner.run(sql).first
-    return Customer.new(customer)
+    return Customer.map_items(sql)
   end
 
   def Ticket.all()
     sql = "SELECT * FROM tickets"
-    tickets_hash = SqlRunner.run(sql)
-    return tickets_hash.map {|ticket| Ticket.new(ticket)}
+    return Ticket.map_items(sql)
   end
 
   def Ticket.all_undeleted()
     sql = "SELECT * FROM tickets WHERE deleted = FALSE"
-   tickets_hash = SqlRunner.run(sql)
-   return tickets_hash.map {|ticket| Ticket.new(ticket)}
+   return Ticket.map_items(sql)
   end
 
   def Ticket.delete_all_console()
@@ -83,6 +79,11 @@ class Ticket
   def Ticket.delete_all()
     sql = "UPDATE tickets SET deleted = TRUE"
     SqlRunner.run(sql)
+  end
+
+  def Ticket.map_items(sql)
+    tickets_hash = SqlRunner.run(sql)
+    return tickets_hash.map {|ticket| Ticket.new(ticket)}
   end
 
 end
